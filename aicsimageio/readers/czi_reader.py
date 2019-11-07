@@ -1,7 +1,7 @@
 import io
 import logging
 import warnings
-from typing import Optional
+from typing import Optional, Tuple
 
 import numpy as np
 from lxml.etree import _Element
@@ -213,3 +213,20 @@ class CziReader(Reader):
             return False
         img_shape = self.czi.filtered_subblock_directory[0].shape
         return img_shape[index] != 1
+
+    def get_channel_names(self, scene: int = 0):
+        chelem = self.metadata.findall("./Metadata/Information/Image/Dimensions/Channels/Channel")
+        return [ch.get("Name") for ch in chelem]
+
+    # TODO refactor this utility function into a metadata wrapper class
+    def _getmetadataxmltext(self, findpath, default=None):
+        ref = self.metadata.find(findpath)
+        if ref is None:
+            return default
+        return ref.text
+
+    def get_physical_pixel_size(self, scene: int = 0) -> Tuple[float]:
+        px = float(self._getmetadataxmltext("./Metadata/Scaling/Items/Distance[@Id='X']/Value", "1.0"))
+        py = float(self._getmetadataxmltext("./Metadata/Scaling/Items/Distance[@Id='Y']/Value", "1.0"))
+        pz = float(self._getmetadataxmltext("./Metadata/Scaling/Items/Distance[@Id='Z']/Value", "1.0"))
+        return (px, py, pz)
