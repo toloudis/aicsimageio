@@ -1,0 +1,3 @@
+[submodule "aicsimageio/vendor/4DN_OME"]
+	path = aicsimageio/vendor/4DN_OME
+	url = https://github.com/WU-BIMAC/MicroscopyMetadata4DNGuidelines.git
